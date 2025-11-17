@@ -1,0 +1,23 @@
+---
+name: "Provision Infrastructure"
+hosts: "all"
+become: true
+tasks:
+  - name: "Update and upgrade apt packages"
+    ansible.builtin.apt:
+      update_cache: yes
+      upgrade: dist 
+  - name: "install required system packages"
+    ansible.builtin.apt:
+      name:
+        - python3-pip
+        - docker.io
+        - docker-compose
+        - git
+      state: present
+  - name: "Ensure Docker service is running"
+    ansible.builtin.systemd:
+      name: docker
+      state: started   #sudo systemctl start docker
+      enabled: true    #sudo systemctl enable docker
+  
