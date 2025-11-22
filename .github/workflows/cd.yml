@@ -1,0 +1,26 @@
+name: "Continuous Deployment"
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deply to EC2 via ssh
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY}}
+          script: | 
+            docker pull ghcr.io/${{ github.repository }}:latest
+            
+            docker stop app-backend || true
+            docker rm app-backend || true
+
+            docker run -d /
+            --name app-backend /
+            -p 5000:5000 /
+            ghcr.io/${{ github.repository }}:latest
+             
