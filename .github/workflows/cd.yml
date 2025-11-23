@@ -1,26 +1,44 @@
-name: "Continuous Deployment"
+name: Continuous Deployment
+
 on:
   push:
     branches:
       - 'main'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deply to EC2 via ssh
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 1: Copy the 'sheet music' to the server
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY}}
-          script: | 
-            docker pull ghcr.io/${{ github.repository }}:latest
-            
-            docker stop app-backend || true
-            docker rm app-backend || true
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "/home/ubuntu/"
 
-            docker run -d /
-            --name app-backend /
-            -p 5000:5000 /
-            ghcr.io/${{ github.repository }}:latest
-             
+      # Step 2: SSH in and run the orchestra
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Go to where we put the file
+            cd /home/ubuntu/
+            
+            # 1. Pull the latest images (built by the Release workflow)
+            docker compose pull
+            
+            # 2. Restart the containers with the new images/config
+            # --remove-orphans cleans up any old containers from the previous setup
+            docker compose up -d --remove-orphans
+            
+            # 3. Cleanup unused space
+            docker image prune -f
