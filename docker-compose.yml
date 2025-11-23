@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # 1. The Database (Memory)
+  db:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # 2. The Backend (Brain)
+  backend:
+    build: ./app-backend
+    container_name: app-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+      POSTGRES_HOST: db
+
+  # 3. The Frontend (Face) 
+  frontend:
+    build: ./app-frontend
+    container_name: app-frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+# Define the volume for the database so data persists even if we stop the containers
+volumes:
+  db_data:

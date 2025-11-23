@@ -1,3 +1,4 @@
+---
 name: "Release to Registry"
 on:
   push:

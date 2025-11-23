@@ -1,10 +1,38 @@
 import math
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 # Enable CORS to allow your React app to call this API
 CORS(app)
+# --- Database Configuration ---
+db_user = os.getenv('POSTGRES_USER', 'user')
+db_password = os.getenv('POSTGRES_PASSWORD', 'password')
+db_host = os.getenv('POSTGRES_HOST', 'db')
+db_port = os.getenv('POSTGRES_PORT', 5432)
+db_name = os.getenv('POSTGRES_DB', 'db')
+db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class Calculation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # We need this column because our save logic uses it!
+    category = db.Column(db.String(50), nullable=False) 
+    inputs = db.Column(db.JSON, nullable=False)
+    results = db.Column(db.JSON, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Calculation {self.id} - {self.category}>'
+
+with app.app_context():
+    db.create_all()
 
 # --- Logic from your NEW React code, ported to Python ---
 
@@ -163,6 +191,11 @@ def handle_calculate():
             results = calculate_supplement_price(data)
         else:
             results = calculate_device_price(data)
+
+    # create new memory
+        new_cal = Calculation(category=category, inputs=data, results=results)
+        db.session.add(new_cal)
+        db.session.commit()
         
         # Return the results as JSON
         return jsonify(results)
