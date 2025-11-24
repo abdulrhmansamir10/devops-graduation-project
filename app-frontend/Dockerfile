@@ -11,6 +11,8 @@ RUN npm run build
 FROM nginx:alpine
 # Vite outputs to the 'dist' folder, so we copy from there
 COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy custom nginx configuration to prevent caching issues
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Expose port 80 (Standard Web Port inside the container)
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
