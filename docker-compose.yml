@@ -27,10 +27,9 @@ services:
 
   # 3. The Backend (Brain)
   backend:
-    build: ./app-backend
     # REMOVED: build: ./app-backend  <-- The server doesn't have the code!
     # ADDED: The address of the finished box in the warehouse
-    # image: ghcr.io/abdulrhmansamir10/devops-graduation-project:latest
+    image: ghcr.io/abdulrhmansamir10/devops-graduation-project:latest
     container_name: app-backend
     restart: always
     ports:
@@ -47,10 +46,9 @@ services:
 
   # 4. The Frontend (Face)
   frontend:
-    build: ./app-frontend
     # REMOVED: build: ./app-frontend
     # ADDED: The address of the finished frontend box
-    # image: ghcr.io/abdulrhmansamir10/devops-graduation-project-frontend:latest
+    image: ghcr.io/abdulrhmansamir10/devops-graduation-project-frontend:latest
     container_name: app-frontend
     restart: always
     ports:
