@@ -26,7 +26,8 @@ const MULTIPLIERS = {
   packingMaterial: { Plastic: 1, Glass: 1.12, Paper: 1.06 }
 };
 
-const API_URL = "http://localhost:5000/calculate";
+// API_URL dynamically uses the same host as the frontend (works in Docker and locally)
+const API_URL = `http://${window.location.hostname}:5000/calculate`;
 
 function App() {
   const [category, setCategory] = useState('supplement');
