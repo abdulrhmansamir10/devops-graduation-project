@@ -24,3 +24,10 @@ jobs:
           context: ./app-backend
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+
+      - name: Build and push Frontend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./app-frontend
+          push: true
+          tags: ghcr.io/${{ github.repository }}-frontend:latest
