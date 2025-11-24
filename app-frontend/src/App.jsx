@@ -1,49 +1,38 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 
-// --- Icons (Inline SVGs for stability) ---
-const CalculatorIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><line x1="16" y1="10" x2="12" y2="10"></line><line x1="12" y1="14" x2="12" y2="18"></line><line x1="8" y1="10" x2="8" y2="18"></line>
+// Inline SVG Icons - Enhanced versions
+const CalculatorIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 14h.01M12 17h.01M15 17h.01M12 20h.01M15 20h.01M9 20h.01M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z" />
   </svg>
 );
 
-const PackageIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path>
+const SupplementIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
   </svg>
 );
 
-const PillIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path>
+const DeviceIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
   </svg>
 );
 
-const DownloadIcon = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
-  </svg>
-);
-
-// --- Constants ---
 const MULTIPLIERS = {
-  maleSupport: { Yes: 1.45, No: 1 },
-  productShape: { 'Capsules/Tablets': 1, 'Softgels/Chews': 1, 'Powder/Creamy': 1, 'Gummies': 1.1, 'Liquid': 1.1, 'Injection': 1.2 },
+  importOrigin: { US: 1, UK: 1.25, EU: 1.1 },
+  productShape: { 'Capsules/Tablets': 1, 'Softgels/Chews': 1, 'Powder/Creamy': 1, 'Gummies': 1.1, 'Liquid': 1.05, 'Injection': 1.2 },
   bottleSize: { Small: 0.9, Normal: 1, Big: 1.1, Massive: 1.2 },
-  packingMaterial: { Plastic: 1, Glass: 1.1, Paper: 1.06 },
-  importOrigin: { US: 1, UK: 1.27, EU: 1.13, NZ: 0.72 }
+  packingMaterial: { Plastic: 1, Glass: 1.12, Paper: 1.06 }
 };
 
-// IMPORTANT: Update this URL before deploying to Production!
-// For Local Docker Compose, use: "http://localhost:5000/calculate"
-// For AWS Production, use: "http://<YOUR_EC2_IP>:5000/calculate"
 const API_URL = "http://localhost:5000/calculate";
 
-const PricingCalculator = () => {
+function App() {
   const [category, setCategory] = useState('supplement');
-  const [apiResults, setApiResults] = useState(null);
-  const [apiError, setApiError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [inputs, setInputs] = useState({
     purchasePrice: 44, fxRate: 50, count: 120, dailyDose: 2, weightGrams: 100,
@@ -51,177 +40,223 @@ const PricingCalculator = () => {
     isMaleSupport: 'No', importFrom: 'US', lengthCm: 10, widthCm: 45, heightCm: 20, weightKg: 0.3
   });
 
-  const handleInputChange = (field, value) => {
-    setApiResults(null);
-    setApiError(null);
-    setInputs(prev => ({ ...prev, [field]: value }));
-  };
+  const handle = (field, val) => setInputs(prev => ({ ...prev, [field]: val }));
 
-  // --- API Logic ---
-  const calculatePriceFromAPI = async () => {
-    setIsLoading(true);
-    setApiResults(null);
-    setApiError(null);
-
+  const calculate = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(API_URL, {
+      const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...inputs, category: category }),
+        body: JSON.stringify({ ...inputs, category })
       });
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      setApiResults(data);
-    } catch (error) {
-      console.error("Error:", error);
-      setApiError("Failed to connect to Backend. Make sure Docker is running!");
-    } finally {
-      setIsLoading(false);
+      if (!res.ok) throw new Error('Calculation failed');
+
+      const data = await res.json();
+      setResults(data);
+    } catch (e) {
+      setError(e.message || "Error connecting to backend");
     }
+    setLoading(false);
   };
 
-  const results = apiResults; // Only show results if API returns them
+  // Reusable Tailwind classes
+  const container = "min-h-screen bg-[#1a1a1a] text-white p-6";
+  const card = "bg-[#2a2a2a] rounded-lg border border-[#3a3a3a] p-6 shadow-lg";
+  const input = "w-full px-3 py-2 bg-[#1a1a1a] border border-[#3a3a3a] rounded text-white focus:outline-none focus:border-blue-500 transition-colors";
+  const label = "block text-sm font-medium mb-2 text-gray-300";
+  const button = "w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-semibold rounded transition-all transform active:scale-95";
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-12">
-      {/* Navbar */}
-      <div className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-6 shadow-lg">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <CalculatorIcon className="w-8 h-8 opacity-90" />
+    <div className={container}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <header className="flex items-center gap-3 mb-8">
+          <CalculatorIcon />
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">EGV Pricing Calculator</h1>
-            <p className="text-blue-200 text-sm">Professional Cost & Margin Analysis</p>
+            <h1 className="text-3xl font-bold">EGV Pricing Calculator</h1>
+            <p className="text-gray-400 text-sm mt-1">Cost & Margin Analyzer</p>
           </div>
-        </div>
-      </div>
+        </header>
 
-      <div className="max-w-4xl mx-auto mt-8 px-4">
-
-        {/* Category Tabs */}
-        <div className="flex gap-4 mb-6 justify-center">
+        {/* Tabs */}
+        <div className="flex gap-2 mb-0">
           <button
             onClick={() => setCategory('supplement')}
-            className={`flex-1 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-sm ${category === 'supplement'
-              ? 'bg-white text-blue-700 ring-2 ring-blue-600 shadow-md scale-[1.02]'
-              : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+            className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium transition-colors ${category === 'supplement'
+              ? 'bg-[#2a2a2a] text-white border-t border-l border-r border-[#3a3a3a]'
+              : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
               }`}
           >
-            <PillIcon className="w-5 h-5" /> Supplement
+            <SupplementIcon />
+            Supplement
           </button>
           <button
             onClick={() => setCategory('device')}
-            className={`flex-1 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-sm ${category === 'device'
-              ? 'bg-white text-blue-700 ring-2 ring-blue-600 shadow-md scale-[1.02]'
-              : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+            className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium transition-colors ${category === 'device'
+              ? 'bg-[#2a2a2a] text-white border-t border-l border-r border-[#3a3a3a]'
+              : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
               }`}
           >
-            <PackageIcon className="w-5 h-5" /> Device
+            <DeviceIcon />
+            Device
           </button>
         </div>
 
-        <div className="grid md:grid-cols-12 gap-6">
-          {/* Left Column: Inputs */}
-          <div className="md:col-span-5 space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Base Parameters</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Purchase Price (USD)</label>
-                  <input type="number" value={inputs.purchasePrice} onChange={(e) => handleInputChange('purchasePrice', parseFloat(e.target.value) || 0)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-gray-50" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">FX Rate (EGP)</label>
-                  <input type="number" value={inputs.fxRate} onChange={(e) => handleInputChange('fxRate', parseFloat(e.target.value) || 0)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" />
-                </div>
+        {/* Form */}
+        <div className={card}>
+          {/* Global Settings */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <span className="text-blue-500">•</span>
+              Global Settings
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={label}>Purchase Price ($)</label>
+                <input type="number" value={inputs.purchasePrice} onChange={e => handle('purchasePrice', e.target.value)} className={input} step="0.01" />
+              </div>
+              <div>
+                <label className={label}>FX Rate (EGP/$)</label>
+                <input type="number" value={inputs.fxRate} onChange={e => handle('fxRate', e.target.value)} className={input} step="0.01" />
+              </div>
+              <div>
+                <label className={label}>Import From</label>
+                <select value={inputs.importFrom} onChange={e => handle('importFrom', e.target.value)} className={input}>
+                  {Object.keys(MULTIPLIERS.importOrigin).map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={label}>Male Support</label>
+                <select value={inputs.isMaleSupport} onChange={e => handle('isMaleSupport', e.target.value)} className={input}>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
               </div>
             </div>
+          </section>
 
-            {/* Dynamic Inputs based on Category */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">{category === 'supplement' ? 'Product Details' : 'Dimensions'}</h3>
+          {/* Product Details */}
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <span className="text-blue-500">•</span>
+              {category === 'supplement' ? 'Supplement Details' : 'Device Dimensions'}
+            </h2>
+
+            {category === 'supplement' ? (
               <div className="space-y-4">
-                {category === 'supplement' ? (
-                  <>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div><label className="text-xs font-bold text-gray-500">Count</label><input type="number" value={inputs.count} onChange={(e) => handleInputChange('count', parseFloat(e.target.value))} className="w-full mt-1 p-2 border rounded-lg bg-gray-50" /></div>
-                      <div><label className="text-xs font-bold text-gray-500">Weight (g)</label><input type="number" value={inputs.weightGrams} onChange={(e) => handleInputChange('weightGrams', parseFloat(e.target.value))} className="w-full mt-1 p-2 border rounded-lg bg-gray-50" /></div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500">Shape</label>
-                      <select value={inputs.productShape} onChange={(e) => handleInputChange('productShape', e.target.value)} className="w-full mt-1 p-2 border rounded-lg bg-gray-50">
-                        {Object.keys(MULTIPLIERS.productShape).map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </div>
-                  </>
-                ) : (
-                  <div className="grid grid-cols-3 gap-2">
-                    <div><label className="text-xs">L (cm)</label><input type="number" value={inputs.lengthCm} onChange={(e) => handleInputChange('lengthCm', parseFloat(e.target.value))} className="w-full p-2 border rounded bg-gray-50" /></div>
-                    <div><label className="text-xs">W (cm)</label><input type="number" value={inputs.widthCm} onChange={(e) => handleInputChange('widthCm', parseFloat(e.target.value))} className="w-full p-2 border rounded bg-gray-50" /></div>
-                    <div><label className="text-xs">H (cm)</label><input type="number" value={inputs.heightCm} onChange={(e) => handleInputChange('heightCm', parseFloat(e.target.value))} className="w-full p-2 border rounded bg-gray-50" /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={label}>Count (Pills/Capsules)</label>
+                    <input type="number" value={inputs.count} onChange={e => handle('count', e.target.value)} className={input} />
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Calculate Button */}
-            <button
-              onClick={calculatePriceFromAPI}
-              disabled={isLoading}
-              className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg transform active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-            >
-              {isLoading ? 'Calculating...' : 'Calculate Price'}
-            </button>
-
-            {apiError && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 text-center">{apiError}</div>}
-          </div>
-
-          {/* Right Column: Results */}
-          <div className="md:col-span-7">
-            {!results ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 p-12 border-2 border-dashed border-gray-200 rounded-2xl bg-white/50">
-                <CalculatorIcon className="w-16 h-16 mb-4 opacity-20" />
-                <p>Enter details and click calculate to see results</p>
+                  <div>
+                    <label className={label}>Daily Dose</label>
+                    <input type="number" value={inputs.dailyDose} onChange={e => handle('dailyDose', e.target.value)} className={input} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={label}>Weight (grams)</label>
+                    <input type="number" value={inputs.weightGrams} onChange={e => handle('weightGrams', e.target.value)} className={input} step="0.1" />
+                  </div>
+                  <div>
+                    <label className={label}>Product Shape</label>
+                    <select value={inputs.productShape} onChange={e => handle('productShape', e.target.value)} className={input}>
+                      {Object.keys(MULTIPLIERS.productShape).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={label}>Packing Material</label>
+                    <select value={inputs.packingMaterial} onChange={e => handle('packingMaterial', e.target.value)} className={input}>
+                      {Object.keys(MULTIPLIERS.packingMaterial).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={label}>Bottle Size</label>
+                    <select value={inputs.bottleSize} onChange={e => handle('bottleSize', e.target.value)} className={input}>
+                      {Object.keys(MULTIPLIERS.bottleSize).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className="space-y-6 animate-fade-in">
-                {/* Main Price Card */}
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-                  <div className="relative z-10 text-center">
-                    <div className="text-blue-300 font-medium mb-1 uppercase tracking-widest text-xs">Recommended Retail Price</div>
-                    <div className="text-5xl font-bold tracking-tight">EGP {results.finalPrice}</div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className={label}>Length (cm)</label>
+                    <input type="number" value={inputs.lengthCm} onChange={e => handle('lengthCm', e.target.value)} className={input} step="0.1" />
+                  </div>
+                  <div>
+                    <label className={label}>Width (cm)</label>
+                    <input type="number" value={inputs.widthCm} onChange={e => handle('widthCm', e.target.value)} className={input} step="0.1" />
+                  </div>
+                  <div>
+                    <label className={label}>Height (cm)</label>
+                    <input type="number" value={inputs.heightCm} onChange={e => handle('heightCm', e.target.value)} className={input} step="0.1" />
                   </div>
                 </div>
-
-                {/* Detail Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <div className="text-gray-500 text-xs font-bold uppercase">Total Cost</div>
-                    <div className="text-2xl font-bold text-gray-800">{results.totalCost}</div>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-xl shadow-sm border border-green-100">
-                    <div className="text-green-600 text-xs font-bold uppercase">Profit Amount</div>
-                    <div className="text-2xl font-bold text-green-700">+{results.markup}</div>
-                  </div>
-                  <div className="bg-blue-50 p-4 rounded-xl shadow-sm border border-blue-100">
-                    <div className="text-blue-600 text-xs font-bold uppercase">Profit Margin</div>
-                    <div className="text-2xl font-bold text-blue-700">{results.markupPercentage}%</div>
-                  </div>
-                  <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <div className="text-gray-500 text-xs font-bold uppercase">Base Cost</div>
-                    <div className="text-xl font-semibold text-gray-600">{results.baseCost}</div>
-                  </div>
+                <div>
+                  <label className={label}>Weight (kg)</label>
+                  <input type="number" value={inputs.weightKg} onChange={e => handle('weightKg', e.target.value)} className={input} step="0.01" />
                 </div>
               </div>
             )}
-          </div>
+          </section>
+
+          <button onClick={calculate} className={button} disabled={loading}>
+            {loading ? 'Calculating...' : 'Calculate Price'}
+          </button>
+
+          {error && (
+            <div className="mt-4 p-4 bg-red-900/50 border border-red-700 rounded text-red-100">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+
+          {/* Results */}
+          {results && !loading && (
+            <section className="mt-6 pt-6 border-t border-[#3a3a3a]">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <span className="text-blue-500">•</span>
+                Calculation Results
+              </h2>
+
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg p-6 mb-4 text-center">
+                <div className="text-sm text-blue-100 uppercase tracking-wider mb-2">Final Sales Price</div>
+                <div className="text-5xl font-bold text-white">
+                  EGP {results.finalPrice?.toLocaleString() || '0'}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-[#1a1a1a] rounded border border-[#3a3a3a] p-4">
+                  <div className="text-sm text-gray-400 mb-1">Total Cost</div>
+                  <div className="text-2xl font-bold">EGP {results.totalCost?.toLocaleString()}</div>
+                </div>
+                <div className="bg-[#1a1a1a] rounded border border-[#3a3a3a] p-4">
+                  <div className="text-sm text-gray-400 mb-1">Profit</div>
+                  <div className="text-2xl font-bold text-green-400">+EGP {results.profit?.toLocaleString()}</div>
+                </div>
+                <div className="bg-[#1a1a1a] rounded border border-[#3a3a3a] p-4">
+                  <div className="text-sm text-gray-400 mb-1">Margin</div>
+                  <div className="text-2xl font-bold text-blue-400">{results.margin}%</div>
+                </div>
+                <div className="bg-[#1a1a1a] rounded border border-[#3a3a3a] p-4">
+                  <div className="text-sm text-gray-400 mb-1">Base Cost</div>
+                  <div className="text-2xl font-bold">EGP {results.baseCost?.toLocaleString()}</div>
+                </div>
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default PricingCalculator;
+export default App;
